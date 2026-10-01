@@ -216,5 +216,22 @@ button:active {
         min-height: 48px;
     }
 
+    #subscribeMessage {
+        margin-top: 16px;
+        color :#201f1f
+    }
 
+    #subscribeMessage.is-success {
+        color: #1d201d;
+        background-color: #d4f0d4;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 700;
+    }
+
+    #subscribeButton {
+        color: #201f1f;
+        background-color: #83cd88;
+        cursor: not-allowed;
+    }
 }

@@ -85,12 +85,14 @@
 
     <section id="subscribe" class="subscribe-card">
       <h2>학습 소식 받기</h2>
-
-      <form>
+      <form id="subscribe-form">
         <label for="email">이메일</label>
         <input type="email" id="email" name="email">
-        <button type="submit">학습 소식 신청하기</button>
+        <button id="subscribeButton" type="submit">학습 소식 구독하기</button>
       </form>
+      <p id="subscribeMessage" aria-live="polite">
+        학습 소식 구독을 신청하시려면 이메일을 입력해주세요.
+      </p>
     </section>
   </main>
 
@@ -98,5 +100,6 @@
     <small>2026 © 공부 습관 관리 서비스</small>
   </footer>
 
+<script src="script.js"></script>
 </body>
 </html>
