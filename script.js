@@ -140,11 +140,75 @@ const formData = {
     title:"", duration: "5", qna: false, qnaCount: "2"
 };
 
+const studyRecords = [];
+
 function showStep(index) {
     flowSteps.forEach((step, i) => {step.hidden = i !== index;});
     progressItems.forEach((item, i) => {
         item.classList.toggle("is-active", i === index);
     });
+}
+
+const recordsList = document.querySelector("#records-list");
+const recordsMessage = document.querySelector("#records-message");
+
+function showStudyRecords() {
+    recordsList.innerHTML = "";
+
+    if (studyRecords.length === 0) {
+        recordsMessage.textContent = "아직 등록된 학습 기록이 없습니다.";
+        return;
+    }
+
+    recordsMessage.textContent = "나의 학습 기록을 확인해 보세요.";
+
+    for (let i = 0; i < studyRecords.length; i++) {
+        const record = studyRecords[i];
+        const item = document.createElement("li");
+
+        const recordTitle = document.createElement("h3");
+        recordTitle.textContent = "기록 " + (i + 1);
+
+        const title = document.createElement("p");
+        title.textContent = "학습자: " + record.title;
+
+        const duration = document.createElement("p");
+        duration.textContent = "학습 시간: " + record.duration + "시간";
+
+        const qna = document.createElement("p");
+
+        if (record.qna) {
+            qna.textContent = "질문 설정: " + record.qnaCount + "개 포함";
+        } else {
+            qna.textContent = "질문 설정: 미포함";
+        }
+
+        const status = document.createElement("p");
+
+        if (record.completed) {
+            status.textContent = "학습 상태: 완료";
+        } else {
+            status.textContent = "학습 상태: 진행 전";
+        }
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.textContent = record.completed ? "완료 취소" : "학습 완료";
+
+        button.addEventListener("click", function () {
+            record.completed = !record.completed;
+            showStudyRecords();
+        });
+
+        item.appendChild(recordTitle);
+        item.appendChild(title);
+        item.appendChild(duration);
+        item.appendChild(qna);
+        item.appendChild(status);
+        item.appendChild(button);
+
+        recordsList.appendChild(item);
+    }
 }
 
 const infoDialog = document.querySelector("#infoDialog");
@@ -216,7 +280,19 @@ if (count) {
 });
 
 summaryPrev.addEventListener("click", () => showStep(1));
-finishButton.addEventListener("click", () => showStep(3));
+finishButton.addEventListener("click", function () {
+    const record = {
+        title: formData.title,
+        duration: formData.duration,
+        qna: formData.qna,
+        qnaCount: formData.qnaCount,
+        completed: false
+        };
+
+    studyRecords.push(record);
+    showStudyRecords();
+    showStep(3);
+});
 restartButton.addEventListener("click", () => {
     formData.title = "";
     formData.duration = "";

@@ -173,7 +173,7 @@ button:active {
     background-color: #b4d5ae;    
 }
 
-.evnet-card label:not(.agree-row){
+.event-card label:not(.agree-row){
     display: block;
     margin-bottom: 8px;
     font-weight: 700;   
@@ -290,7 +290,7 @@ body.dark #agreeMessage {
     color: #2e3b2e;
 }
 
-#infoDialog ::backdrop {background: #rgba(30,20,39,.6);}
+#infoDialog ::backdrop {background: #rgb(30,20,39,.6);}
 #infoDialog .dialog-actions {display:flex; gap: 12px; justify-content: flex-end; margin-top: 20px;}
 #infoDialog button{min-height: 44px;}
 body.dark #infoDialog {background: #2e3b2e; color: #000;}
@@ -306,7 +306,7 @@ body.dark #infoDialog {background: #2e3b2e; color: #000;}
 
 .training-flow .error-message{
     min-height: 24px;
-    color: #5fa064;
+    color: #bf0000;
     font-weight: 700;
 }
 .training-flow #studentName.has-error{border-color: #ea0d0d;}
@@ -319,7 +319,7 @@ body.dark #infoDialog {background: #2e3b2e; color: #000;}
 }
 
 .training-flow .summary-list > div {
-    dislay: flex;
+    display: flex;
     justify-content: space-between;
     gap: 16px;
     padding: 12px 0;
@@ -344,7 +344,7 @@ body.dark .training-flow{
     }
 
     header {
-        padding-top: 32px
+        padding-top: 32px;
         padding-bottom: 24px;
     }
 
@@ -430,4 +430,29 @@ body.dark .training-flow{
     .training-flow .step-actions button {width: 100%;}
     .training-flow input[type="checkbox"],
     .training-flow input[type="radio"] {width: auto;}
+    .study-records button {
+        width: 100%;
+        max-width: none;
+    }
+}
+
+
+.study-records {
+    margin-top: 24px;
+    padding: 16px;
+    border: 1px solid #deddea;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+
+.study-records ul {
+    padding-left: 20px;
+}
+
+.study-records li {
+    margin-bottom: 16px;
+}
+
+.study-records button {
+    max-width: 180px;
 }
