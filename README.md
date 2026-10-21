@@ -113,4 +113,4 @@ StudyMate - 공부 습관 관리
 모바일 화면에서 기록과 버튼 표시: 정상 동작 확인
 
 ## 배포 주소
-웹페이지: 배포한 주소 입력
+웹페이지: https://minjeong-create.github.io/uiuxprogramming/
