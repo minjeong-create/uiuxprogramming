@@ -45,6 +45,11 @@ function handleSubscribe(event) {
 subscribeForm.addEventListener("submit", handleSubscribe);
 
 const themeButton = document.querySelector("#themeButton");
+const navLinks = document.querySelectorAll(".main-nav a");
+const menuToggle = document.querySelector("#menu-toggle");
+const mainNav = document.querySelector("#main-nav");
+const filterButtons = document.querySelectorAll(".filter-button");
+let currentFilter = "all";
 const nicknameInput = document.querySelector("#nickname");
 const nicknameCount = document.querySelector("#nicknameCount");
 const agreeCheck = document.querySelector("#agreeCheck");
@@ -208,16 +213,23 @@ const recordsList = document.querySelector("#records-list");
 const recordsMessage = document.querySelector("#records-message");
 
 function showStudyRecords() {
+    const visibleRecords = getVisibleStudyRecords();
+
     recordsList.innerHTML = "";
 
-    if (studyRecords.length === 0) {
-        recordsMessage.textContent = "아직 등록된 학습 기록이 없습니다.";
+    if (visibleRecords.length === 0) {
+        if (studyRecords.length === 0) {
+            recordsMessage.textContent = "아직 등록된 학습 기록이 없습니다.";
+        } else {
+            recordsMessage.textContent = "선택한 상태의 학습 기록이 없습니다. 다른 상태를 선택해 보세요.";
+        }
         return;
     }
 
     recordsMessage.textContent = "나의 학습 기록을 확인해 보세요.";
 
-    for (let i = 0; i < studyRecords.length; i++) {
+
+for (let i = 0; i < visibleRecords.length; i++) {
         const record = studyRecords[i];
         const item = document.createElement("li");
 
@@ -265,6 +277,64 @@ function showStudyRecords() {
 
         recordsList.appendChild(item);
     }
+}
+
+filterButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+        currentFilter = button.dataset.filter;
+
+        filterButtons.forEach((item) => {
+            const selected = item === button;
+            item.classList.toggle("is-active", selected);
+            item.setAttribute("aria-pressed", String(selected));
+        });
+
+        showStudyRecords();
+    });
+});
+
+function updateCurrentNav() {
+  const currentHash = window.location.hash;
+
+  navLinks.forEach((link) => {
+    const current = currentHash
+      ? link.getAttribute("href") === currentHash
+      : link === navLinks[0];
+
+    link.classList.toggle("is-current", current);
+
+    if (current) {
+      link.setAttribute("aria-current", "page");
+    } else {
+      link.removeAttribute("aria-current");
+    }
+  });
+}
+
+window.addEventListener("hashchange", updateCurrentNav);
+updateCurrentNav();
+
+menuToggle.addEventListener("click", () => {
+    const isOpen = mainNav.classList.toggle("is-open");
+
+    menuToggle.textContent = isOpen ? "메뉴 닫기" : "메뉴 열기";
+    menuToggle.setAttribute("aria-expanded", String(isOpen));
+});
+
+navLinks.forEach((link) => {
+    link.addEventListener("click", () => {
+        mainNav.classList.remove("is-open");
+        menuToggle.textContent = "메뉴 열기";
+        menuToggle.setAttribute("aria-expanded", "false");
+    });
+});
+
+function getVisibleStudyRecords() {
+    return studyRecords.filter((record) => {
+        if (currentFilter === "all") return true;
+        if (currentFilter === "completed") return record.completed;
+        return !record.completed;
+    });
 }
 
 const infoDialog = document.querySelector("#infoDialog");
@@ -489,7 +559,8 @@ restartButton.addEventListener("click", () => {
     formData.qna = false;
     formData.qnaCount = "2";
 
-    nicknameCount.textContent = "0 / 10";
+    nicknameInput.value = "";
+    handleNicknameInput();
     titleCount.textContent = "0 / 60자";
     titleHelp.textContent = "학습자 이름을 2자 이상 입력해 주세요.";
     titleError.textContent = "";
