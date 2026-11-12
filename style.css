@@ -59,6 +59,23 @@ a {
   outline-offset: 3px;
 }
 
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  z-index: 10;
+  padding: 10px 14px;
+  border: 2px solid var(--blue);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--ink);
+  transform: translateY(-160%);
+}
+
+.skip-link:focus-visible {
+  transform: translateY(0);
+}
+
 h1,
 h2,
 h3,
@@ -710,6 +727,13 @@ p {
   border-color: var(--green);
   background: var(--green);
   color: #fff;
+}
+
+.main-nav a[aria-current="page"],
+.filter-button[aria-pressed="true"] {
+  font-weight: 800;
+  text-decoration: underline;
+  text-underline-offset: 6px;
 }
 
 .training-flow .complete-step h3 {

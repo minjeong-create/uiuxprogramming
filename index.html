@@ -30,6 +30,7 @@
     4. 학습 소식 받기
   -->
 
+  <a class="skip-link" href="#top">본문 바로가기</a>
   <header class="site-header">
     <div class="container header-inner">
       <h1>공부 습관 관리 서비스</h1>
@@ -51,7 +52,7 @@
     </div>
   </header>
 
-  <main>
+  <main id="top" tabindex="-1">
     <section id="about" class="hero container">
       <div class="hero-copy">
         <h2>서비스 소개</h2>
@@ -62,7 +63,8 @@
       </div>
 
       <figure class="hero-image">
-        <img src="assets/images/service.jpg" alt="책상에서 공부하고 있는 사용자">
+        <img src="assets/images/service.jpg" alt="책상에서 공부하고 있는 사용자"
+          width="1920" height="1080">
       </figure>
     </section>
 
@@ -183,7 +185,8 @@
       <h2 id="infoDialogTitle">학습 설정</h2>
       <p id="infoDialogDesc">학습자 이름을 입력해주세요. 지금은 학습 조건만 설정하여 학습이 시작되지 않습니다.</p>
       <div class="dialog-actions">
-        <button id="info-cancel" type="button">취소</button>
+        <button id="info-close" type="button"
+        aria-label="학습 설정 창 닫기">취소</button>
         <button id="info-confirm" type="button">동의하고 설정 시작하기</button>
       </div>
     </dialog>
@@ -216,7 +219,7 @@
             aria-describedby="title-help title-count title-error">
           <div class="field-meta">
           <p id="title-help">학습자 이름을 2자 이상 입력해 주세요.</p>
-          <p id="title-count" aria-live="polite">0 / 60자</p>
+          <p id="title-count" class="field-count">0 / 60자</p>
           </div>
           <p id="title-error" class="field-error" role="alert"></p>
           </div>
@@ -286,6 +289,9 @@
             type="button" data-filter="completed" aria-pressed="false">완료</button>
             </div>
             <p id="records-message">아직 등록된 학습 기록이 없습니다.</p>
+            <div id="empty-state" hidden>
+            <a href="#event-practice">계획 만들러 가기</a>
+            </div>
             <ul id="records-list"></ul>
           </section>
           <button id="restart-button" type="button">다시 설정하기</button>

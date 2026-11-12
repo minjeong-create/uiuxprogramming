@@ -211,6 +211,8 @@ function showStep(index) {
 
 const recordsList = document.querySelector("#records-list");
 const recordsMessage = document.querySelector("#records-message");
+const emptyState = document.querySelector("#empty-state");
+const emptyAction = emptyState.querySelector("a");
 
 function showStudyRecords() {
     const visibleRecords = getVisibleStudyRecords();
@@ -218,13 +220,24 @@ function showStudyRecords() {
     recordsList.innerHTML = "";
 
     if (visibleRecords.length === 0) {
-        if (studyRecords.length === 0) {
-            recordsMessage.textContent = "아직 등록된 학습 기록이 없습니다.";
-        } else {
-            recordsMessage.textContent = "선택한 상태의 학습 기록이 없습니다. 다른 상태를 선택해 보세요.";
-        }
-        return;
+    emptyState.hidden = false;
+    emptyAction.hidden = false;
+    emptyAction.textContent = studyRecords.length > 0
+        ? "전체 보기"
+        : "계획 만들러 가기";
+    emptyAction.href = studyRecords.length > 0
+        ? "#records-list"
+        : "#event-practice";
+
+    if (studyRecords.length === 0) {
+        recordsMessage.textContent = "아직 등록된 학습 기록이 없습니다.";
+    } else {
+        recordsMessage.textContent = "선택한 상태의 학습 기록이 없습니다. 다른 상태를 선택해 보세요.";
     }
+    return;
+}
+
+emptyState.hidden = true;
 
     recordsMessage.textContent = "나의 학습 기록을 확인해 보세요.";
 
@@ -266,6 +279,10 @@ for (let i = 0; i < visibleRecords.length; i++) {
             record.completed = !record.completed;
             saveStudyRecords();
             showStudyRecords();
+
+            const selectedFilter = document.querySelector(
+                '.filter-button[aria-pressed="true"]');
+            selectedFilter?.focus();
         });
 
         item.appendChild(recordTitle);
@@ -290,7 +307,24 @@ filterButtons.forEach((button) => {
         });
 
         showStudyRecords();
-    });
+
+        const count = getVisibleStudyRecords().length;
+        const filterName = button.textContent.trim();
+
+        recordsMessage.textContent = count > 0
+        ? `${filterName} 기록 ${count}개가 표시됩니다.`
+        : `${filterName} 기록이 없습니다. 다른 상태를 선택해 보세요.`;
+        });
+});
+
+emptyAction.addEventListener("click", (event) => {
+    if (currentFilter === "all") return;
+
+    event.preventDefault();
+
+    const allButton = document.querySelector('[data-filter="all"]');
+    allButton.click();
+    allButton.focus();
 });
 
 function updateCurrentNav() {
@@ -309,6 +343,9 @@ function updateCurrentNav() {
       link.removeAttribute("aria-current");
     }
   });
+const currentLink = document.querySelector('.main-nav a[aria-current="page"]');
+const pageName = currentLink ? currentLink.textContent.trim() : "홈";
+document.title = pageName + " | StudyMate";
 }
 
 window.addEventListener("hashchange", updateCurrentNav);
@@ -319,6 +356,15 @@ menuToggle.addEventListener("click", () => {
 
     menuToggle.textContent = isOpen ? "메뉴 닫기" : "메뉴 열기";
     menuToggle.setAttribute("aria-expanded", String(isOpen));
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Escape" || !mainNav.classList.contains("is-open")) return;
+
+  mainNav.classList.remove("is-open");
+  menuToggle.textContent = "메뉴 열기";
+  menuToggle.setAttribute("aria-expanded", "false");
+  menuToggle.focus();
 });
 
 navLinks.forEach((link) => {
@@ -338,7 +384,7 @@ function getVisibleStudyRecords() {
 }
 
 const infoDialog = document.querySelector("#infoDialog");
-const infoCancel = document.querySelector("#info-cancel");
+const infoCancel = document.querySelector("#info-close");
 const infoConfirm = document.querySelector("#info-confirm");
 
 function revokeinfoAgreement() {
@@ -366,8 +412,12 @@ infoConfirm.addEventListener("click", () => {
     infoDialog.close();
     trainingFlow.hidden = false;
     showStep(0);
+
+    if (!validateTitle()) {
+        titleInput.focus();
+    }
+
     trainingFlow.scrollIntoView({ behavior: "smooth" });
-    titleInput.focus();
 });
 
 function showTitleError(message) {
