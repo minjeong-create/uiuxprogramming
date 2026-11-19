@@ -160,6 +160,7 @@ const formData = {
     qnaCount: "2"
 };
 
+
 function readStudyRecords() {
     try {
         const stored = JSON.parse(localStorage.getItem(storageKey) || "[]");
@@ -168,21 +169,25 @@ function readStudyRecords() {
 
         return stored.filter(function(record) {
             return record && typeof record.title === "string";
-        }).map(function(record) {
+        }).map(function(record, index) {
             return {
+                id: record.id || "record-" + Date.now() + "-" + index,
+                createdAt: record.createdAt || new Date().toISOString(),
                 title: record.title,
                 duration: ["3", "5", "10"].includes(record.duration)
                     ? record.duration : "5",
                 qna: record.qna === true,
                 qnaCount: ["1", "2", "3"].includes(record.qnaCount)
                     ? record.qnaCount : "2",
-                completed: record.completed === true
+                completed: record.completed === true,
+                cancelled: record.cancelled === true
             };
         });
     } catch {
         return [];
     }
 }
+
 
 const studyRecords = readStudyRecords();
 
@@ -214,6 +219,126 @@ const recordsMessage = document.querySelector("#records-message");
 const emptyState = document.querySelector("#empty-state");
 const emptyAction = emptyState.querySelector("a");
 
+
+
+function createStudyRecordCard(record, index) {
+    const item = document.createElement("li");
+    item.className = record.cancelled
+        ? "plan-card is-cancelled"
+        : "plan-card";
+
+    const icon = document.createElement("span");
+    icon.className = "plan-card-icon";
+    icon.textContent = "↗";
+    icon.setAttribute("aria-hidden", "true");
+
+    const top = document.createElement("div");
+    top.className = "plan-card-top";
+
+    const state = document.createElement("span");
+    state.className = "plan-state";
+    state.textContent = record.cancelled
+        ? "취소됨"
+        : record.completed ? "완료됨" : "저장됨";
+
+    top.append(state);
+
+    const date = new Date(record.createdAt);
+
+    if (!Number.isNaN(date.getTime())) {
+        const time = document.createElement("time");
+        time.className = "plan-date";
+        time.textContent = new Intl.DateTimeFormat("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric"
+        }).format(date);
+        time.dateTime = date.toISOString();
+        top.append(time);
+    }
+
+    const recordTitle = document.createElement("h3");
+    recordTitle.className = "plan-title";
+    recordTitle.textContent = "기록 " + (index + 1);
+
+    const title = document.createElement("p");
+    title.className = "plan-meta";
+    title.textContent = "학습자: " + record.title;
+
+    const duration = document.createElement("p");
+    duration.className = "plan-meta";
+    duration.textContent = "학습 시간: " + record.duration + "시간";
+
+    const qna = document.createElement("p");
+    qna.className = "plan-meta";
+    qna.textContent = record.qna
+        ? "질문 설정: " + record.qnaCount + "개 포함"
+        : "질문 설정: 미포함";
+
+    const status = document.createElement("p");
+    status.className = "plan-meta";
+    status.textContent = record.cancelled
+        ? "계획 상태: 취소됨"
+        : record.completed
+            ? "학습 상태: 완료"
+            : "학습 상태: 진행 전";
+
+    const actions = document.createElement("div");
+    actions.className = "plan-actions";
+
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "button button-secondary";
+    openButton.textContent = "내용 보기";
+    openButton.dataset.action = "open";
+    openButton.dataset.id = record.id;
+
+    const toggleButton = document.createElement("button");
+    toggleButton.type = "button";
+    toggleButton.className = "button button-text";
+    toggleButton.textContent = record.cancelled
+        ? "취소 되돌리기"
+        : "계획 취소하기";
+    toggleButton.dataset.action = "toggle";
+    toggleButton.dataset.id = record.id;
+
+    const completeButton = document.createElement("button");
+    completeButton.type = "button";
+    completeButton.className = "button button-text";
+    completeButton.textContent = record.completed
+        ? "완료 취소"
+        : "학습 완료";
+
+    completeButton.disabled = record.cancelled;
+
+    const detail = document.createElement("div");
+    detail.className = "plan-details";
+    detail.hidden = true;
+    detail.append(title, duration, qna, status);
+
+    openButton.addEventListener("click", function() {
+        detail.hidden = !detail.hidden;
+        openButton.textContent = detail.hidden ? "내용 보기" : "내용 닫기";
+    });
+
+    toggleButton.addEventListener("click", function() {
+        record.cancelled = !record.cancelled;
+        saveStudyRecords();
+        showStudyRecords();
+    });
+
+    completeButton.addEventListener("click", function() {
+        record.completed = !record.completed;
+        saveStudyRecords();
+        showStudyRecords();
+    });
+
+    actions.append(openButton, toggleButton, completeButton);
+    item.append(top, icon, recordTitle, detail, actions);
+
+    return item;
+}
+
 function showStudyRecords() {
     const visibleRecords = getVisibleStudyRecords();
 
@@ -241,59 +366,12 @@ emptyState.hidden = true;
 
     recordsMessage.textContent = "나의 학습 기록을 확인해 보세요.";
 
-
 for (let i = 0; i < visibleRecords.length; i++) {
-        const record = studyRecords[i];
-        const item = document.createElement("li");
+    const record = visibleRecords[i];
+    const card = createStudyRecordCard(record, i);
+    recordsList.appendChild(card);
+}
 
-        const recordTitle = document.createElement("h3");
-        recordTitle.textContent = "기록 " + (i + 1);
-
-        const title = document.createElement("p");
-        title.textContent = "학습자: " + record.title;
-
-        const duration = document.createElement("p");
-        duration.textContent = "학습 시간: " + record.duration + "시간";
-
-        const qna = document.createElement("p");
-
-        if (record.qna) {
-            qna.textContent = "질문 설정: " + record.qnaCount + "개 포함";
-        } else {
-            qna.textContent = "질문 설정: 미포함";
-        }
-
-        const status = document.createElement("p");
-
-        if (record.completed) {
-            status.textContent = "학습 상태: 완료";
-        } else {
-            status.textContent = "학습 상태: 진행 전";
-        }
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.textContent = record.completed ? "완료 취소" : "학습 완료";
-
-        button.addEventListener("click", function() {
-            record.completed = !record.completed;
-            saveStudyRecords();
-            showStudyRecords();
-
-            const selectedFilter = document.querySelector(
-                '.filter-button[aria-pressed="true"]');
-            selectedFilter?.focus();
-        });
-
-        item.appendChild(recordTitle);
-        item.appendChild(title);
-        item.appendChild(duration);
-        item.appendChild(qna);
-        item.appendChild(status);
-        item.appendChild(button);
-
-        recordsList.appendChild(item);
-    }
 }
 
 filterButtons.forEach((button) => {
@@ -338,15 +416,17 @@ function updateCurrentNav() {
     link.classList.toggle("is-current", current);
 
     if (current) {
-      link.setAttribute("aria-current", "page");
+      link.setAttribute("aria-current", "location");
     } else {
       link.removeAttribute("aria-current");
     }
   });
-const currentLink = document.querySelector('.main-nav a[aria-current="page"]');
-const pageName = currentLink ? currentLink.textContent.trim() : "홈";
-document.title = pageName + " | StudyMate";
+
+  const currentLink = document.querySelector('.main-nav a[aria-current="location"]');
+  const pageName = currentLink ? currentLink.textContent.trim() : "홈";
+  document.title = pageName + " | StudyMate";
 }
+
 
 window.addEventListener("hashchange", updateCurrentNav);
 updateCurrentNav();
@@ -378,10 +458,12 @@ navLinks.forEach((link) => {
 function getVisibleStudyRecords() {
     return studyRecords.filter((record) => {
         if (currentFilter === "all") return true;
+        if (record.cancelled) return false;
         if (currentFilter === "completed") return record.completed;
         return !record.completed;
     });
 }
+
 
 const infoDialog = document.querySelector("#infoDialog");
 const infoCancel = document.querySelector("#info-close");
@@ -575,11 +657,14 @@ form.addEventListener("submit", async (event) => {
     }
 
     const record = {
-        title: formData.title,
-        duration: formData.duration,
-        qna: formData.qna,
-        qnaCount: formData.qnaCount,
-        completed: false
+    id: "record-" + Date.now(),
+    createdAt: new Date().toISOString(),
+    title: formData.title,
+    duration: formData.duration,
+    qna: formData.qna,
+    qnaCount: formData.qnaCount,
+    completed: false,
+    cancelled: false
     };
 
     setSubmitState(true, "학습 설정을 저장하고 있습니다.");

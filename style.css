@@ -11,6 +11,9 @@
   --green-hover: #5fa064;
   --green-light: #b4d5ae;
   --green-button: #83cd88;
+  --periwinkle: #8078ff;
+  --navy: #050632;
+  --lime: #cfff5e;
   --danger: #bf0000;
   --shadow: 0 18px 48px rgba(44, 75, 44, .08);
 }
@@ -55,7 +58,7 @@ a {
 }
 
 :focus-visible {
-  outline: 3px solid #079213;
+  outline: 3px solid var(--green);
   outline-offset: 3px;
 }
 
@@ -65,7 +68,7 @@ a {
   left: 8px;
   z-index: 10;
   padding: 10px 14px;
-  border: 2px solid var(--blue);
+  border: 2px solid var(--green);
   border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
@@ -159,7 +162,7 @@ p {
 .header-inner h1 {
   flex: none;
   margin: 0;
-  color: var(--green);
+  color: #fff;
   font-size: 23px;
   font-weight: 800;
 }
@@ -190,9 +193,9 @@ p {
 }
 
 .main-nav a.is-current {
-  color: var(--green);
-  background: var(--surface-soft);
-  box-shadow: inset 0 -3px 0 var(--green);
+  background: var(--green-hover);
+  color: #ffffff;
+  box-shadow: inset 4px 0 0 var(--green-light);
 }
 
 .menu-toggle {
@@ -324,6 +327,16 @@ p {
   color: var(--green);
 }
 
+.button-text {
+  min-height: 44px;
+  padding-inline: 8px;
+  color: var(--green);
+  background: transparent;
+}
+
+.button-text:hover {
+  background: var(--surface-soft);
+}
 
 .section-heading {
   display: flex;
@@ -713,6 +726,88 @@ p {
   margin-bottom: 18px;
 }
 
+.plan-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 248px;
+  padding: 22px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--green);
+  border-radius: 14px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.plan-card.is-cancelled {
+  border-top-color: var(--muted);
+  background: var(--surface-soft);
+}
+
+.plan-card-top {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-right: 44px;
+}
+
+.plan-state {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 10px;
+  border-radius: 99px;
+  background: var(--green-light);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.is-cancelled .plan-state {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
+.plan-card-icon {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  display: grid;
+  place-items: center;
+  width: 35px;
+  height: 35px;
+  border-radius: 10px;
+  background: var(--surface-soft);
+  color: var(--green);
+}
+
+.plan-title {
+  margin-bottom: 6px;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.plan-meta {
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+.plan-date {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.plan-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+
 .filter-button {
   min-height: 42px;
   padding: 8px 14px;
@@ -729,7 +824,7 @@ p {
   color: #fff;
 }
 
-.main-nav a[aria-current="page"],
+.main-nav a[aria-current="location"],
 .filter-button[aria-pressed="true"] {
   font-weight: 800;
   text-decoration: underline;
@@ -907,6 +1002,9 @@ body.dark #subscribe-form input {
   border-color: var(--line);
 }
 
+body.dark .filter-button.is-active {
+  color: #263d28;
+}
 
 @media (max-width: 800px) {
   .header-inner {
@@ -987,11 +1085,12 @@ body.dark #subscribe-form input {
   }
 
   .main-nav a {
-    display: block;
-    min-height: 44px;
-    padding: 10px 12px;
-    border-radius: 9px;
-    font-size: 14px;
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 10px 13px;
+  color: #ffffff;
+  border-radius: 8px;
   }
   
   .theme-button {
@@ -1101,13 +1200,131 @@ body.dark #subscribe-form input {
   }
 }
 
+@media (max-width: 700px) {
+  .plan-list {
+    grid-template-columns: 1fr;
+  }
+}
 
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
-
   .button {
     transition: none;
+  }
+}
+
+.sidebar-cta { display: none; }
+
+@media (min-width: 901px) {
+  .site-header {
+    position: fixed;
+    inset: 0 auto 0 0;
+    width: 250px;
+    background: var(--green);
+  }
+
+  .header-inner {
+    width: 100%;
+    height: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    padding: 28px 18px 20px;
+  }
+
+  main, .site-footer { margin-left: 250px; }
+  .brand img { width: 164px; filter: invert(1); }
+
+  .sidebar-cta {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    margin: 28px 0 22px;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--green-button);
+    color: #263d28;
+    text-decoration: none;
+    font-weight: 800;
+  }
+
+  .main-nav { width: 100%; margin: 0; }
+  .main-nav ul { display: grid; gap: 5px; }
+  .main-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 10px 13px;
+    color: #edf0ff;
+  }
+  .main-nav a:hover { background: var(--green-hover); color: #fff; }
+  .main-nav a.is-current {
+    background: var(--green-hover);
+    color: #ffffff;
+    box-shadow: inset 4px 0 0 var(--green-light);
+  }
+}
+
+/* 601~900px 태블릿 메뉴 */
+@media (min-width: 601px) and (max-width: 900px) {
+  .header-inner {
+    flex-wrap: wrap;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+  }
+
+  .site-header {
+    position: sticky;
+  }
+
+  .site-header .main-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    width: 100%;
+    margin: 0;
+    padding: 12px 20px;
+    background: var(--surface);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow);
+  }
+
+  .site-header .main-nav.is-open {
+    display: block;
+  }
+
+  .main-nav ul {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0;
+  }
+
+  .main-nav a {
+    display: block;
+    padding: 12px 10px;
+    border-radius: 8px;
+    text-align: center;
+    color: var(--muted);
+  }
+
+  .main-nav a.is-current {
+    color: var(--green);
+    background: var(--surface-soft);
+    box-shadow: inset 0 -3px 0 var(--green);
+  }
+
+  .main-nav a:hover {
+    color: var(--green);
+    background: var(--surface-soft);
   }
 }
