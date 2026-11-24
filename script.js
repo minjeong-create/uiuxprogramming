@@ -164,12 +164,27 @@ const draftKey = "studymate-plan-draft-v1";
 const draftStatus = document.querySelector("#draft-status");
 const draftDiscard = document.querySelector("#draft-discard");
 
+
 function getDraftValues() {
+    const selectedCount = qnaCountInputs.find(
+        (input) => input.checked
+    );
+
+    const durationIndex = Number(durationRange.value);
+    const duration = durationValues[durationIndex] || "5";
+
     return {
         ...formData,
+        title: titleInput.value,
+        duration: duration,
+        qna: qnaOption.checked,
+        qnaCount: selectedCount
+            ? selectedCount.value
+            : formData.qnaCount,
         step: [...flowSteps].findIndex((step) => !step.hidden)
     };
 }
+
 
 function hasDraftInput(draft) {
     return Boolean(
