@@ -579,25 +579,57 @@ p {
   background: var(--surface);
 }
 
+
 .draft-notice {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 16px;
   width: min(750px, calc(100% - 32px));
   margin: 20px auto 0;
-  padding: 14px 18px;
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  background: var(--surface-soft);
+  padding: 18px 22px;
+  border: 1px solid var(--green-light);
+  border-radius: 14px;
+  background: #dcebdd;
 }
-.draft-notice p { margin: 0; }
+
+.draft-notice p {
+  margin: 0;
+  color: var(--green);
+  font-weight: 700;
+}
+
+.draft-notice button {
+  border: 1px solid var(--green-button);
+  background: var(--green-button);
+  color: #263d28;
+}
+
+.draft-notice button:hover {
+  border-color: var(--green-hover);
+  background: var(--green-hover);
+  color: #ffffff;
+}
+
 .draft-notice:has(p:empty) {
   margin-top: 0;
   padding: 0;
   border: 0;
 }
+
+body.dark .draft-notice {
+  background: var(--surface-soft);
+  border-color: var(--line);
+}
+
+body.dark .draft-notice p {
+  color: var(--green);
+}
+
 @media (max-width: 900px) {
-  .draft-notice { flex-wrap: wrap; }
+  .draft-notice {
+    flex-wrap: wrap;
+  }
 }
 
 .training-flow .progress {
