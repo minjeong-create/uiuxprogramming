@@ -160,6 +160,153 @@ const formData = {
     qnaCount: "2"
 };
 
+const draftKey = "studymate-plan-draft-v1";
+const draftStatus = document.querySelector("#draft-status");
+const draftDiscard = document.querySelector("#draft-discard");
+
+function getDraftValues() {
+    return {
+        ...formData,
+        step: [...flowSteps].findIndex((step) => !step.hidden)
+    };
+}
+
+function hasDraftInput(draft) {
+    return Boolean(
+        draft.title ||
+        draft.duration !== "5" ||
+        draft.qna
+    );
+}
+
+function saveDraft() {
+    const draft = getDraftValues();
+
+    if (!hasDraftInput(draft)) {
+        clearDraft();
+        return;
+    }
+
+    try {
+        sessionStorage.setItem(draftKey, JSON.stringify(draft));
+
+        const savedMessage = "작성 내용을 임시 보관했어요.";
+
+        if (draftStatus.textContent !== savedMessage) {
+            draftStatus.textContent = savedMessage;
+        }
+    } catch {
+        draftStatus.textContent =
+            "작성 내용을 임시 보관하지 못했어요. 새로고침하면 작성 내용이 사라질 수 있어요.";
+    }
+}
+
+form.addEventListener("input", saveDraft);
+form.addEventListener("change", saveDraft);
+
+function readDraft() {
+    try {
+        const draft = JSON.parse(sessionStorage.getItem(draftKey));
+
+        if (!draft || typeof draft.title !== "string") {
+            return null;
+        }
+
+        return draft;
+    } catch {
+        return null;
+    }
+}
+
+function restoreDraft() {
+    const draft = readDraft();
+    if (!draft) return;
+
+    titleInput.value = draft.title.slice(0, 60);
+    updateTitleExperience();
+
+        const duration = ["3", "5", "10"].includes(draft.duration)
+        ? draft.duration : "5";
+
+    durationRange.value = durationValues.indexOf(duration);
+    durationValue.value = duration + "시간";
+
+    qnaOption.checked = draft.qna === true;
+
+    const count = ["1", "2", "3"].includes(draft.qnaCount)
+        ? draft.qnaCount : "2";
+
+    const countInput = qnaCountInputs.find(
+        (input) => input.value === count
+    );
+
+    if (countInput) countInput.checked = true;
+
+    formData.title = titleInput.value.trim();
+    formData.duration = duration;
+    formData.qna = qnaOption.checked;
+    formData.qnaCount = count;
+
+    syncQnaFields();
+
+    const validStep = Number.isInteger(draft.step)
+        && draft.step >= 0 && draft.step <= 2;
+
+    const step = validStep && titleInput.value.trim().length >= 2
+        ? draft.step : 0;
+
+    if (step === 2) {
+        summaryTitle.textContent = formData.title;
+        summaryDuration.textContent = formData.duration + "시간";
+        summaryQna.textContent = formData.qna
+            ? formData.qnaCount + "개 포함"
+            : "미포함";
+    }
+
+    showStep(step);
+
+    draftStatus.textContent =
+        `작성 내용을 불러왔어요. ${step + 1}단계부터 이어서 작성하세요.`;
+
+    draftDiscard.hidden = false;
+}
+restoreDraft();
+
+function clearDraft() {
+    try {
+        sessionStorage.removeItem(draftKey);
+    } catch {
+    }
+
+    draftDiscard.hidden = true;
+    draftStatus.textContent = "";
+}
+
+draftDiscard.addEventListener("click", () => {
+    if (form.getAttribute("aria-busy") === "true") return;
+
+    clearDraft();
+    form.reset();
+    syncQnaFields();
+
+    formData.title = "";
+    formData.duration = "5";
+    formData.qna = false;
+    formData.qnaCount = "2";
+
+    titleInput.value = "";
+    clearTitleError();
+    updateTitleExperience();
+
+    durationValue.value = "5시간";
+
+    summaryTitle.textContent = "";
+    summaryDuration.textContent = "";
+    summaryQna.textContent = "";
+
+    showStep(0);
+    draftStatus.textContent = "처음부터 입력할 수 있어요.";
+});
 
 function readStudyRecords() {
     try {
@@ -212,6 +359,8 @@ function showStep(index) {
     const heading = flowSteps[index].querySelector("h3");
     heading.tabIndex = -1;
     heading.focus({ preventScroll: true });
+
+    if (index <= 2) saveDraft();
 }
 
 const recordsList = document.querySelector("#records-list");
@@ -449,6 +598,21 @@ document.addEventListener("keydown", (event) => {
 
 navLinks.forEach((link) => {
     link.addEventListener("click", () => {
+        const opensRecords =
+            link.getAttribute("href") === "#records-list";
+
+        if (opensRecords) {
+            trainingFlow.hidden = false;
+            showStep(3);
+
+            window.requestAnimationFrame(() => {
+                recordsList.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
+            });
+        }
+
         mainNav.classList.remove("is-open");
         menuToggle.textContent = "메뉴 열기";
         menuToggle.setAttribute("aria-expanded", "false");
@@ -607,6 +771,7 @@ summaryPrev.addEventListener("click", () => showStep(1));
 function setSubmitState(loading, message) {
     form.setAttribute("aria-busy", String(loading));
     saveButton.disabled = loading;
+    draftDiscard.disabled = loading;
     saveButton.textContent = loading
         ? "저장하는 중…"
         : "설정 완료하기";
@@ -672,6 +837,8 @@ form.addEventListener("submit", async (event) => {
     try {
         await persistPlan(record);
 
+        clearDraft();
+
         showStudyRecords();
 
         setSubmitState(false, "학습 설정을 저장했습니다.");
@@ -686,6 +853,7 @@ form.addEventListener("submit", async (event) => {
 });
 
 restartButton.addEventListener("click", () => {
+    clearDraft();
     form.reset();
     syncQnaFields();
 
